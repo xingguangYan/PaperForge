@@ -1,0 +1,17 @@
+﻿[
+  {
+    "task_id": "Task-1",
+    "type": "classification",
+    "target_variable": "land_cover",
+    "description": "土地利用分类",
+    "datasets": ["COPERNICUS/S2_SR"],
+    "region": null,
+    "time_range": ["2018-01-01", "2023-12-31"],
+    "cloud_cover": 20,
+    "models": ["smileRandomForest(100)", "smileCart()", "improved_rf"],
+    "validation": "10-fold cross-validation",
+    "metrics": ["overall_accuracy", "kappa", "f1"],
+    "expected_output": "classification_map, accuracy_table",
+    "innovation": "引入多时相纹理特征改善分类精度"
+  }
+]
