@@ -1,11 +1,10 @@
-﻿---
+---
 name: paperforge
 description: |
-  End-to-end automated remote sensing research pipeline. From a natural-language research topic to a complete SCI-grade manuscript with GEE-computed figures, tables, and code — fully automated.
-  Combines ResearchX (literature mining/paper writing) and GEEPro (Earth Engine execution).
+  Professional-grade automated remote sensing research pipeline. From a natural-language topic to a complete SCI or Chinese-core journal manuscript (8000+ words) with GEE-computed figures, tables, formulas, and DOCX output — fully automated.
+  Integrates ResearchX (literature mining/paper writing) and GEEPro (Earth Engine execution).
 trigger_strategy: contains_any
 trigger_terms:
-  # English triggers
   - paperforge
   - paper forge
   - auto paper
@@ -31,7 +30,6 @@ trigger_terms:
   - SCI paper
   - research pipeline automation
   - remote sensing manuscript
-  # Chinese triggers
   - 论文锻造
   - 自动写论文
   - 遥感论文
@@ -50,7 +48,8 @@ trigger_terms:
   - 论文助手
   - 学术写作
   - 研究助手
-  # ResearchX triggers
+  - 中文核心
+  - SCI 写作
   - research paper
   - SCI
   - journal paper
@@ -60,13 +59,8 @@ trigger_terms:
   - write paper
   - experiment design
   - peer review
-  - grant proposal
   - academic writing
   - publish paper
-  - paper analysis
-  - research topic
-  - literature survey
-  # GEEPro triggers
   - google earth engine
   - GEE
   - geemap
@@ -76,661 +70,563 @@ trigger_terms:
   - NDVI
   - remote sensing
   - earth engine
-  # Platform discovery
-  - paperforge skill
-  - paperforge pipeline
-  - install paperforge
-  - skill paperforge
 ---
 
-# 🔨 PaperForge — 全自动遥感科研流水线
+# PaperForge — Professional Automated Remote Sensing Research Pipeline
 
-> **"Topic in, Paper out."**
+> **"Topic in. Paper out."**
 
-PaperForge 是一个端到端的智能研究流水线技能（Skill），集成了 **ResearchX**（文献挖掘、实验设计、论文写作）和 **GEEPro**（Google Earth Engine 代码执行）。你只需说出一个研究方向，PaperForge 就会自动完成：**文献检索 → 研究缺口分析 → GEE 实验设计 → 代码执行 → 结果分析 → SCI 标准论文生成**。
+PaperForge is a production-grade Codex skill for end-to-end remote sensing research automation. It integrates **ResearchX** (literature mining, experiment design, paper writing) and **GEEPro** (Google Earth Engine code execution). Given a research topic, PaperForge autonomously completes: **literature review → research gap analysis → GEE task design → code execution → result analysis → complete manuscript generation (8000+ words) → DOCX output**.
 
 ---
 
-## 📋 目录
+## 0. Pre-Execution: Journal Type Selection
 
-- [🔨 PaperForge — 全自动遥感科研流水线](#-paperforge--全自动遥感科研流水线)
-  - [📋 目录](#-目录)
-  - [✨ 核心能力一览](#-核心能力一览)
-  - [⚡ 快速开始（30 秒上手）](#-快速开始-30-秒上手)
-  - [🖥️ 在所有 Agent 平台中使用 PaperForge](#️-在所有-agent-平台中使用-paperforge)
-    - [Cline (VS Code)](#cline-vs-code)
-    - [Claude Desktop](#claude-desktop)
-    - [Cursor](#cursor)
-    - [Windsurf](#windsurf)
-    - [GitHub Copilot](#github-copilot)
-    - [OpenAI Codex CLI](#openai-codex-cli)
-  - [🔬 完整工作流程详解](#-完整工作流程详解)
-    - [Phase 1: ResearchX — 深度文献检索与任务提炼](#-phase-1-researchx--深度文献检索与任务提炼)
-    - [Phase 2: GEEPro — 多任务自动执行](#-phase-2-geepro--多任务自动执行)
-    - [Phase 3: ResearchX — 论文生成](#-phase-3-researchx--论文生成)
-  - [📦 输入输出格式](#-输入输出格式)
-    - [用户输入](#用户输入)
-    - [最终输出](#最终输出)
-  - [🎯 完整示例](#-完整示例)
-    - [示例 1：黄河流域植被覆盖度变化](#示例-1黄河流域植被覆盖度变化)
-    - [示例 2：湖泊富营养化监测](#示例-2湖泊富营养化监测)
-  - [⚙️ 命令行参数](#️-命令行参数)
-  - [📁 文件结构](#-文件结构)
-  - [🛠️ 依赖与环境](#️-依赖与环境)
-  - [❓ 常见问题](#-常见问题)
-  - [📄 许可](#-许可)
+**BEFORE starting any task, ALWAYS ask the user:**
+
+> "请问您要撰写的是以下哪种期刊类型？"
+> 
+> **① 中文核心期刊 (Chinese Core Journal)**
+> - 约 6000-8000 字
+> - 中英文摘要 + 关键词
+> - GB/T 7714-2015 参考文献格式
+> - 适合：《遥感学报》《生态学报》《地理学报》等
+> 
+> **② SCI 期刊 (SCI/SCIE Journal)**
+> - 约 8000-10000 字
+> - 英文长摘要 + Graphical Abstract
+> - APA/MLA 参考文献格式
+> - 适合：Remote Sensing of Environment, IEEE TGRS, Science of Remote Sensing 等
+
+**Also ask about:**
+- Study area boundaries (if not specified)
+- Time range (default: last 5 years)
+- Satellite data preference (Sentinel-2, Landsat, MODIS — auto-recommend if not specified)
 
 ---
 
-## ✨ 核心能力一览
+## 1. Workflow Overview
 
-| # | 能力 | 说明 |
-|---|------|------|
-| 1 | **文献自动检索** | 多轮 web_search，提取 20-30 篇文献的结构化信息（数据源、算法、精度、创新点、局限） |
-| 2 | **研究缺口分析** | 对比文献自动归纳 3-5 个尚未充分解决的方向 |
-| 3 | **实验任务设计** | 将缺口转化为可执行的 GEE 任务（含数据源、模型、评估指标） |
-| 4 | **GEE 代码自动生成** | 为每个任务生成完整的 Python GEE 脚本（RF/SVM/U-Net/LandTrendr 等） |
-| 5 | **GEE 任务自动执行** | 在 GEE 上运行代码并导出结果（栅格、矢量、统计、图表） |
-| 6 | **自动精度评估** | 计算 OA/Kappa/R²/RMSE 等指标，对比多算法性能 |
-| 7 | **SCI 论文自动生成** | 按 SCI 期刊结构生成完整草稿，含摘要、引言、方法、结果、讨论、结论 |
-| 8 | **自动图表插入** | 所有结果图自动嵌入论文，精度表自动生成 |
-| 9 | **参考文献自动生成** | GB/T 7714-2025 / APA / MLA 格式，30 条文献 |
-| 10 | **一键打包输出** | 论文 + 代码 + 数据 + 图表，结构化输出 |
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     PaperForge Automated Pipeline                           │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  Phase 1: ResearchX — Deep Literature Mining & Task Design                 │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ Step 1: Parse user input (study area, time, data preference)        │   │
+│  │ Step 2: Multi-round web_search (3 rounds × 5+ queries)              │   │
+│  │ Step 3: Structured literature extraction (15+ papers)               │   │
+│  │ Step 4: Research gap identification → 3-5 GEE tasks                 │   │
+│  │ Step 5: Output task_list.json                                       │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                    ↓                                       │
+│  Phase 2: GEEPro — Multi-Task Execution                                   │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ Step 1: Environment verification                                    │   │
+│  │ Step 2: Download NDVI/FVC GeoTIFFs (all years, both areas)          │   │
+│  │ Step 3: Compute accuracy & statistics                               │   │
+│  │ Step 4: Generate publication-quality figures (PNG, 300 DPI)         │   │
+│  │ Step 5: Save results to runs/ directory                             │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                    ↓                                       │
+│  Phase 3: ResearchX — Complete Manuscript Generation                      │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │ Step 1: Integrate all results (tables, figures, statistics)         │   │
+│  │ Step 2: Generate 8000+ word manuscript with:                        │   │
+│  │   • Detailed introduction (1000+ words, 5 paragraphs)               │   │
+│  │   • Methods with mathematical formulas and GEE code snippets        │   │
+│  │   • Results with embedded figures and formatted tables              │   │
+│  │   • Discussion and conclusion                                      │   │
+│  │   • 25-30 formatted references                                      │   │
+│  │ Step 3: Save as manuscript.md + manuscript.html + manuscript.docx   │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                    ↓                                       │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │  Output: manuscript.md (8000+ words) + figures/ + tables/          │   │
+│  │          + gee_code/ + ndvi_tif/ + manuscript.docx                 │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────┘
+
 
 ---
 
-## ⚡ 快速开始（30 秒上手）
+## Phase 1: ResearchX — Deep Literature Mining & Task Design
 
-```bash
-# 1️⃣ 克隆仓库
-git clone https://github.com/xingguangYan/PaperForge.git
-cd PaperForge
+### 1.1 User Input Parsing
 
-# 2️⃣ 安装依赖
-pip install -r requirements.txt
+Extract from the user's natural language description:
 
-# 3️⃣ 全自动运行 🚀
-python scripts/run_pipeline.py \
-    --topic "黄河流域植被覆盖度变化监测" \
-    --project your-google-earth-engine-project-id \
-    --region "黄河中游" \
-    --time "2018-2023"
+| Element | Extraction Method | Example |
+|---------|------------------|---------|
+| **Core Object** | Noun phrase extraction | Yellow River Basin, Taihu Lake, Guishan Mountain |
+| **Target Variable** | Indicator extraction | Vegetation cover, chlorophyll-a, LST, NDVI |
+| **Time Range** | Number + time unit | 2018-2023, 2020-2025, last 5 years |
+| **Spatial Range** | Place name / coordinates | Wuhan, 35.5N/110.2E, buffer 500m |
+| **Data Preference** | Satellite name matching | Sentinel-2, Landsat, MODIS |
+
+**If information is insufficient, DO NOT proceed blindly. Ask clarifying questions:**
+```
+What is the study area? (e.g., Yellow River Basin, Wuhan city, global scale)
+What is the time range? (default: last 5 years)
+Do you have a satellite data preference? (recommend Sentinel-2 for urban, Landsat for long-term)
+Which journal type? (Chinese Core or SCI)
 ```
 
----
+### 1.2 Multi-Round Systematic Literature Retrieval
 
-## 🖥️ 在所有 Agent 平台中使用 PaperForge
-
-PaperForge 设计为跨平台兼容，以下主流 AI 编码助手均可直接使用。
-
-### Cline (VS Code)
-
-将 `.clinerules` 放入项目根目录，或在 Cline 的自定义指令中添加：
+Execute 3 rounds of `web_search`:
 
 ```
-你已加载 PaperForge 技能，具备全自动遥感论文生成能力。
-工作流程：用户提供主题 → 文献检索 → 设计 GEE 任务 → 执行 → 写论文。
+Round 1 (Broad): [core topic] + remote sensing + [study area]
+  → Understand overall research landscape
+
+Round 2 (Method-focused): [core topic] + [method: Random Forest / U-Net / LandTrendr]
+  → Understand technical approaches
+
+Round 3 (Gap mining): [core topic] + limitations / challenges / future directions
+  → Discover research gaps
 ```
 
-**或直接在 `.clinerules` 中添加：**
-```
-请使用 @xingguangYan/PaperForge 技能进行遥感研究。
-```
+**Quality standards:**
+- Minimum 15 high-quality papers retrieved
+- Final reference list: 25-30 entries (SCI + Chinese core)
+- Cover at least 3-5 different methods/models
+- Include specific accuracy values (e.g., OA=0.92, R2=0.87)
 
-### Claude Desktop
+### 1.3 Structured Literature Information Extraction
 
-将 PaperForge 添加为 MCP 服务器或复制到 Claude 的 skills 目录：
-
-```bash
-# 方法 1: 直接克隆
-git clone https://github.com/xingguangYan/PaperForge.git
-
-# 方法 2: 在 Claude Desktop 中引用
-# Claude → Settings → Custom Instructions → 添加以下内容：
-```
-
-**自定义指令内容：**
-
-```
-你已获得 PaperForge 技能（https://github.com/xingguangYan/PaperForge）。
-这是一个全自动遥感研究流水线。当用户提到研究主题时，请按以下流程执行：
-1. ResearchX 文献检索 → 2. GEE 实验设计 → 3. 论文生成
-SKILL.md 文件位于 PaperForge/SKILL.md，请按其中完整工作流执行。
-```
-
-### Cursor
-
-在 `.cursorrules` 中添加：
-
-```markdown
-你已加载 PaperForge 技能。当用户提出遥感研究方向时：
-1. 自动执行 PaperForge/SKILL.md 中定义的三阶段工作流
-2. 使用 scripts/run_pipeline.py 编排任务
-3. 输出结构化论文草稿到 outputs/ 目录
-```
-
-### Windsurf
-
-在 `.windsurfrules` 中添加：
-
-```
-你已集成 PaperForge 技能。这是一个端到端遥感论文自动化流水线。
-工作流：用户提供研究主题 → 文献调研 → 研究缺口分析 → GEE 任务设计执行 → 论文生成
-请参考 PaperForge/SKILL.md 获取完整指令。
-```
-
-### GitHub Copilot
-
-在 `.github/copilot-instructions.md` 中添加：
-
-```markdown
-## PaperForge 技能
-当用户请求遥感研究或论文写作时，使用 PaperForge 工作流：
-1. 文献检索：搜索 20-30 篇相关文献，提取结构化信息
-2. 任务设计：设计 3-5 个 GEE 实验任务
-3. 论文生成：按 SCI 标准生成论文草稿
-```
-
-### OpenAI Codex CLI
-
-将 PaperForge 安装为 Codex skill：
-
-```bash
-# 方法 1: 直接复制到 skills 目录
-Copy-Item -Recurse "PaperForge" "$env:USERPROFILE\.codex\skills\PaperForge"
-
-# 方法 2: 通过 plugin 安装
-codex plugin add paperforge@personal
-```
-
----
-
-## 🔬 完整工作流程详解
-
-### 📚 Phase 1: ResearchX — 深度文献检索与任务提炼
-
-**目标**：从用户的研究主题出发，检索最新文献，提炼出可执行的遥感分析任务。
-
-#### Step 1.1 — 用户输入解析
-
-接收用户的自然语言描述，自动提取以下要素：
-
-| 要素 | 提取方式 | 示例 |
-|------|---------|------|
-| **核心对象** | 名词提取 | 湖泊、城市、农田、森林、海岸线 |
-| **目标变量** | 现象/指标提取 | 叶绿素浓度、地表温度、NDVI、FVC |
-| **时间范围** | 数字+时间单位 | 2018-2023、近5年（默认）、2000-2020 |
-| **空间范围** | 地名/坐标 | 黄河流域、长三角、陕西省 |
-| **数据偏好** | 卫星名称 | Sentinel-2、Landsat-8/9、MODIS（无则自动推荐） |
-
-**如果用户输入模糊**，主动追问：
-```
-研究区域是哪里？（例如：黄河流域、长三角、全球尺度）
-时间范围是什么？（默认近5年）
-是否有偏好的卫星数据？（推荐 Sentinel-2 或 Landsat）
-```
-
-#### Step 1.2 — 系统化文献检索
-
-执行多轮 `web_search` 检索：
-
-```
-第一轮： [核心主题] + [遥感/GEE] + [近5年]
-第二轮： [核心主题] + [具体方法] + [精度]
-第三轮： [核心主题] + [研究缺口/挑战/未来方向]
-```
-
-**检索标准**：
-- ✅ 最少检索 **15 篇以上** 高质量文献
-- ✅ 最终引用 **25-30 条**（含中文核心期刊）
-- ✅ 覆盖 3-5 种不同方法/模型
-- ✅ 包含具体的精度数值（如 OA=0.92, R²=0.87）
-
-#### Step 1.3 — 文献信息结构化提取
-
-对每篇文献，提取以下信息并保存为结构化数据：
+For each paper, extract and save as structured JSON:
 
 ```json
 {
-  "title": "Monitoring vegetation dynamics...",
+  "title": "Monitoring vegetation dynamics in the Yellow River Basin...",
   "year": 2023,
   "journal": "Remote Sensing of Environment",
-  "data_source": "Sentinel-2, Landsat-8",
-  "preprocessing": ["cloud_masking", "atmospheric_correction"],
+  "data_source": {"satellite": "Sentinel-2", "bands": ["B4","B8"], "resolution": "10m"},
+  "preprocessing": ["QA60 cloud masking", "atmospheric correction"],
   "algorithm": "Random Forest",
   "accuracy": {"OA": 0.92, "Kappa": 0.89},
-  "innovation": "提出了新的物候特征",
-  "limitation": "仅适用于单一年份"
+  "innovation": "Multi-temporal texture feature fusion",
+  "limitation": "Single year data only"
 }
 ```
 
-#### Step 1.4 — 研究缺口分析与任务提炼
+### 1.4 Research Gap Analysis & Task Refinement
 
-基于文献对比分析，找出 **3-5 个** 研究缺口，每个缺口转化为一个具体的 GEE 任务：
+Based on cross-paper comparison, identify 3-5 research gaps and convert each into a concrete GEE-executable task:
 
-| 属性 | 说明 | 示例值 |
-|------|------|--------|
-| **任务ID** | 唯一标识 | `Task-1` |
-| **任务类型** | 分类/监测/回归/检测/时序 | `classification` |
-| **目标变量** | 预测目标 | `land_cover_type` |
-| **推荐数据源** | GEE 数据集名称 + 参数 | `COPERNICUS/S2_SR`, 云量<20% |
-| **研究区域** | 具体边界 | 黄河中游（陕西-山西段） |
-| **时间范围** | 起始-结束 | `2018-01-01` ~ `2023-12-31` |
-| **基线模型** | 2-3 个文献常用方法 | `smileRandomForest`, `smileCart` |
-| **改进模型/方法** | 本研究的创新方案 | 引入多时相纹理特征的 RF |
-| **评估指标** | 精度评价标准 | `OA, Kappa, F1` 或 `R², RMSE` |
-| **预期输出** | 产出的数据类型 | 分类图、面积统计、精度表 |
-| **创新点** | 一句话说明改进 | 融合光学+SAR 多时序特征 |
+| Attribute | Description | Example |
+|-----------|-------------|---------|
+| **Task ID** | Unique identifier | Task-1 |
+| **Task Type** | classification / monitoring / regression / change_detection | monitoring |
+| **Target Variable** | Prediction target | NDVI trend slope |
+| **Datasets** | GEE dataset IDs + parameters | COPERNICUS/S2_SR_HARMONIZED |
+| **Study Area** | Specific boundary geometry | ee.Geometry.Point([114.269,30.562]).buffer(500) |
+| **Time Range** | Start-end | 2020-01-01 ~ 2025-06-01 |
+| **Baseline Models** | 2-3 literature methods | Random Forest, CART |
+| **Improved Model** | This study's innovation | RF with multi-temporal texture |
+| **Metrics** | Evaluation criteria | OA, Kappa, F1 or R2, RMSE |
+| **Expected Output** | Data product types | classification map, trend map, statistics |
 
-#### Step 1.5 — 输出任务清单
+### 1.5 Output: task_list.json
 
-保存为 `task_list.json`，供 Phase 2 使用。
+Save to `tasks/task_list.json` for Phase 2 consumption.
 
 ---
 
-### 🛰️ Phase 2: GEEPro — 多任务自动执行
+## Phase 2: GEEPro — Multi-Task Execution with Automatic TIF Download & Figure Generation
 
-**目标**：对 Phase 1 设计的每个任务，在 Google Earth Engine 上自动执行。
-
-#### Step 2.1 — 环境验证
+### 2.1 Environment Verification
 
 ```python
-# 验证 GEE 是否就绪
 import ee
 ee.Initialize(project="your-project-id")
-print("GEE 环境就绪")
+print("GEE Ready")
 ```
 
-**如果认证失败**，提示用户：
-```
-请运行以下命令进行 GEE 认证：
-    earthengine authenticate --quiet
-或设置服务账号：
-    ee.Initialize(project="your-project-id", credentials="service_account.json")
-```
+### 2.2 Task Execution Pipeline
 
-#### Step 2.2 — 任务执行流程
+For each task, execute the following steps:
 
-对每个任务，按以下步骤执行：
+#### Step 1: Data Loading & Preprocessing
+```python
+# Sentinel-2 data loading
+s2 = (ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
+      .filterBounds(roi)
+      .filterDate(start_date, end_date)
+      .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", 20)))
 
-```
-┌─────────────────────────────────────────────────────┐
-│  ① 数据加载                                         │
-│  ├─ ee.ImageCollection(dataset_id)                  │
-│  ├─ .filterBounds(roi)                              │
-│  ├─ .filterDate(start, end)                         │
-│  └─ .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", 20))  │
-├─────────────────────────────────────────────────────┤
-│  ② 预处理                                           │
-│  ├─ 云掩膜 (QA60 / pixel_qa)                        │
-│  ├─ 缩放 (multiply + add)                            │
-│  └─ 裁剪到 ROI                                      │
-├─────────────────────────────────────────────────────┤
-│  ③ 特征工程                                         │
-│  ├─ 光谱指数: NDVI, NDWI, EVI, NBR, mNDWI          │
-│  ├─ 纹理特征: GLCM (contrast, correlation, entropy) │
-│  └─ 时序特征: 减 - 加均值、斜率                        │
-├─────────────────────────────────────────────────────┤
-│  ④ 模型训练/推理                                    │
-│  ├─ 分类: RandomForest / SVM / CART                 │
-│  ├─ 回归: RandomForestRegressor / linearFit          │
-│  ├─ 变化检测: LandTrendr / CCDC                     │
-│  └─ 深度学习: U-Net / DeepLabV3+ (可选)             │
-├─────────────────────────────────────────────────────┤
-│  ⑤ 精度评估                                         │
-│  ├─ 混淆矩阵 → OA, Kappa, PA, UA                    │
-│  ├─ 回归 → R², RMSE, MAE, Bias                     │
-│  └─ 变化检测 → 漏检率, 虚警率, F1                   │
-├─────────────────────────────────────────────────────┤
-│  ⑥ 结果导出                                         │
-│  ├─ 栅格 → GeoTIFF (export.image.toDrive)           │
-│  ├─ 矢量 → Shapefile (export.table.toDrive)          │
-│  ├─ 统计 → CSV (ee.data.computePixels)               │
-│  └─ 图表 → PNG (matplotlib 可视化)                   │
-└─────────────────────────────────────────────────────┘
+# Add NDVI band
+def add_ndvi(img):
+    ndvi = img.normalizedDifference(["B8", "B4"]).rename("NDVI")
+    return img.addBands(ndvi)
+s2_ndvi = s2.map(add_ndvi)
 ```
 
-#### Step 2.3 — 自动降级策略
+#### Step 2: Compute Annual/Seasonal Composites
+```python
+for year in range(start_year, end_year + 1):
+    yearly = s2_ndvi.filterDate(f"{year}-01-01", f"{year}-12-31")
+    median_ndvi = yearly.select("NDVI").median().clip(roi)
+```
 
-当遇到问题时，自动降级而非报错退出：
+#### Step 3: Download GeoTIFF Files
+**CRITICAL: ALWAYS download NDVI/FVC GeoTIFFs for all years.**
+```python
+url = median_ndvi.getDownloadURL({
+    "name": f"{site_name}_ndvi_{year}",
+    "scale": 10,
+    "region": roi,
+    "format": "GEO_TIFF",
+    "crs": "EPSG:4326"
+})
+# Download via requests and save to figures/ndvi_tif/
+```
 
-| 问题 | 检测条件 | 处理方式 |
-|------|---------|---------|
-| 数据集不可用 | API 返回 404/空 | 自动切换替代数据集（S2→L8→MODIS） |
-| 内存超限 | "User memory limit exceeded" | 增大 scale 20% + 缩小 ROI |
-| ROI 无有效像素 | "no valid pixels" | 自动扩大 ROI 或调整日期 |
-| 认证过期 | "Authentication failed" | 提示重新认证，给出命令 |
-| 网络超时 | 请求 > 30s | 重试 3 次，指数退避 |
-| 代理限制 | 连接被拒绝 | 检测 HTTP_PROXY 设置并提示 |
+#### Step 4: Compute Statistics
+- Mean, std, min, max NDVI per year per site
+- Trend analysis (linear regression slope, R2, Mann-Kendall p-value)
+- Vegetation grade classification (high/medium/low)
+- Change detection (improved/stable/degraded)
 
-#### Step 2.4 — 输出结构
+#### Step 5: Generate Publication-Quality Figures (300 DPI PNG)
+Generate ALL of the following figures automatically:
+- **Fig 1**: Study area location map with NDVI baseline
+- **Fig 2**: NDVI/FVC time series line chart (both sites, all years)
+- **Fig 3**: NDVI spatial comparison (first year vs last year side by side)
+- **Fig 4**: Vegetation grade classification bar chart
+- **Fig 5**: Change detection bar chart
+- **Fig 6**: Multi-year NDVI panel (all years for both sites)
+
+**Figure specifications:**
+- Format: PNG, 300 DPI
+- Size: 10-12 inches wide
+- Colormap: RdYlGn for NDVI spatial maps
+- Labels: English (to avoid CJK font issues in matplotlib)
+
+### 2.3 Task Output Directory Structure
 
 ```
 runs/YYYYMMDD_HHMMSS_topic/
-├── summary.json              # 所有任务汇总
+├── summary.json                    # All tasks summary
 ├── Task-1/
-│   ├── code.py               # 完整 GEE Python 脚本
-│   ├── RUN.md                # 运行说明
-│   ├── inputs.json           # 输入参数
-│   ├── result.tif            # 输出栅格
-│   ├── accuracy.json         # 精度评估
-│   ├── statistics.csv        # 统计结果
-│   └── figure.png            # 可视化结果图
-├── Task-2/
-│   └── ...
-└── Task-3/
-    └── ...
+│   ├── code.py                     # Complete GEE script
+│   ├── accuracy.json               # Accuracy metrics
+│   └── statistics.csv              # Statistical results
+├── Task-2/ ...
+├── Task-3/ ...
+└── Task-4/ ...
 ```
 
 ---
 
-### 📝 Phase 3: ResearchX — 论文生成
+## Phase 3: ResearchX — Complete Manuscript Generation (8000+ Words)
 
-**目标**：整合所有实验结果，生成符合 SCI 期刊标准的完整论文草稿。
+### 3.1 Result Integration
 
-#### Step 3.1 — 自动结果分析
+Read all task outputs from Phase 2 and generate cross-comparison tables automatically.
 
-- 读取所有任务的 `accuracy.json` 和 `statistics.csv`
-- 生成多任务对比表格
-- 提取关键数值（最高精度、变化面积、趋势斜率等）
+### 3.2 Manuscript Structure (8000+ Words)
 
-#### Step 3.2 — 论文结构
+The manuscript follows the standard SCI / Chinese-core journal structure below.
 
-论文按以下标准 SCI 结构生成：
+#### Title (自动生成)
 
-**标题**：自动生成，格式为 `[方法]在[研究对象]的[目标变量][时间范围]研究`
+Format: `基于 [核心方法] 的 [研究对象] [目标变量] [时间范围] 研究`
+Example: `基于 Sentinel-2 像元二分模型的武汉龟山蛇山植被覆盖度变化监测研究（2020-2025）`
 
-**摘要**（200-300 字）：
+#### Abstract (300-500 words)
+
+Structure:
 ```
-背景（1句）+ 目的（1句）+ 方法（2-3句）+ 关键结果（3-5个数值）+ 意义（1句）
-```
-
-**引言**（5 段结构）：
-```
-第1段：大背景（遥感/环境/气候意义）
-第2段：国内外研究进展（引用文献，对比各方法的优缺点）
-第3段：现有不足（指出现有研究 gap）
-第4段：本研究目标与创新点（列出 3-5 个任务及其科学假设）
-第5段：文章结构安排
+Background (2-3 sentences): Importance of the research field and existing problem
+Objective (1-2 sentences): Scientific question addressed
+Methods (3-4 sentences): Data, study area, main methods
+Results (5-8 key numerical findings): Include all critical accuracy metrics
+Conclusion (1-2 sentences): Scientific significance and application value
 ```
 
-**方法**：
+#### Keywords: 5-8 core terms
+
+#### 1. Introduction (1000-1500 words, 5 paragraphs)
+
+**Paragraph 1 — Grand Background (250-300 words):**
+- Importance of the research field
+- Remote sensing technology advantages
+- Significance of the specific study area
+- Cite 3-5 foundational references
+
+**Paragraph 2 — International Progress (250-300 words):**
+- Review 5-8 key papers organized by methodology
+- Compare their data sources, algorithms, and accuracies
+- Identify the best-performing approaches
+- Use specific accuracy numbers from literature
+
+**Paragraph 3 — Domestic Progress (150-200 words, for Chinese core):**
+- Review Chinese-language studies on similar topics
+- Compare with international studies
+
+**Paragraph 4 — Research Gaps (200-250 words):**
+- Summarize 2-3 specific limitations of existing work
+- Explain why these gaps matter
+- Connect gaps to the proposed study
+
+**Paragraph 5 — This Study (150-200 words):**
+- Research objectives (numbered list)
+- Innovation points (3-5 items)
+- Paper structure overview
+
+#### 2. Study Area & Data (800-1000 words)
+
+**2.1 Study Area Overview (300-400 words):**
+- Geographic location, coordinates
+- Climate, topography, vegetation types
+- Ecological and cultural significance
+- Include study area map (Fig 1)
+
+**2.2 Data Sources (250-300 words):**
+Table format with: dataset, satellite, bands, resolution, time range, purpose
+
+**2.3 Data Preprocessing (250-300 words):**
+- Cloud masking method (QA60 / pixel_qa)
+- Radiometric calibration and atmospheric correction
+- Clipping and compositing methods
+- Formula for NDVI:
+\[
+NDVI = \frac{NIR - Red}{NIR + Red}
+\]
+
+#### 3. Methods (1500-2000 words)
+
+**3.n Task-N Name (300-400 words each):**
+
+For each task, include:
+- **Principle**: Explain the method's physical/algorithmic basis
+- **Formula**: Mathematical expression
+- **Implementation**: GEE code snippet (key parts only, not full code)
+- **Parameters**: All tunable parameters with their chosen values
+
+**Example formulas to include:**
+
+FVC using Dimidiate Pixel Model:
+\[
+FVC = \frac{NDVI - NDVI_{soil}}{NDVI_{veg} - NDVI_{soil}}
+\]
+where NDVI_soil = 0.05 (bare soil NDVI) and NDVI_veg = 0.85 (full vegetation NDVI).
+
+Linear Trend:
+\[
+y = \beta_0 + \beta_1 t + \varepsilon
+\]
+where β1 is the trend slope, estimated by ordinary least squares.
+
+Mann-Kendall Test:
+\[
+S = \sum_{i=1}^{n-1} \sum_{j=i+1}^{n} sgn(x_j - x_i)
+\]
+\[
+sgn(x) = \begin{cases}
+1 & x > 0 \\
+0 & x = 0 \\
+-1 & x < 0
+\end{cases}
+\]
+
+Classification Accuracy Metrics:
+\[
+OA = \frac{TP + TN}{TP + TN + FP + FN}
+\]
+\[
+Kappa = \frac{p_o - p_e}{1 - p_e}
+\]
+
+#### 4. Results & Analysis (2000-2500 words)
+
+**4.n Task-N Results (400-600 words each):**
+- **Descriptive text**: Describe the spatial and temporal patterns
+- **Table**: Formatted accuracy/results table
+- **Figure**: Embedded figure (Fig X) with caption
+- **Key numbers**: All critical values highlighted
+
+#### 5. Discussion (800-1000 words)
+
+**5.1 Reliability Analysis (200-250 words):**
+- Compare results with existing literature
+- Explain consistency or inconsistency
+- Discuss data quality and methodological robustness
+
+**5.2 Limitations (200-250 words):**
+- Data limitations (resolution, time span, cloud cover)
+- Method limitations (assumptions, simplifications)
+- Sample and validation limitations
+
+**5.3 Implications (200-250 words):**
+- Scientific significance
+- Policy/management recommendations
+- Practical applications
+
+**5.4 Future Work (200-250 words):**
+- Extended time series
+- Additional data sources
+- Improved methods
+- Broader study areas
+
+#### 6. Conclusion (300-400 words)
+
+Numbered points (4-6 items), each containing a specific numerical finding:
 ```
-2.1 研究区概况（位置图、气候、地貌特征）
-2.2 数据源（表格形式：卫星、传感器、波段、分辨率、时间、预处理）
-2.3 任务一方法（包括公式、关键代码段、流程图）
-2.4 任务二方法
+(1) Key finding with numbers...
+(2) Key finding with numbers...
 ...
-2.N 精度评估方法（交叉验证、独立验证集）
 ```
 
-**结果与分析**：
-```
-3.1 任务一结果（分类图/趋势图 + 精度表 + 统计分析）
-3.2 任务二结果
-...
-3.N 综合分析（多任务交叉对比）
-```
+#### References (25-30 entries)
 
-**讨论**：
-```
-4.1 与已有研究的对比（为什么一致/不一致）
-4.2 方法局限性（数据、模型、样本等方面）
-4.3 对实际应用的启示（政策建议、管理措施）
-4.4 未来工作展望
-```
+- Chinese core: GB/T 7714-2015 format
+- SCI: APA (default) or MLA format
+- At least 20 from Phase 1 literature retrieval
+- Remaining 5-10 as supplementary classic references
 
-**结论**（3-5 个要点）：
-```
-(1) ...
-(2) ...
-(3) ...
+### 3.3 Figure References in Manuscript
+
+```markdown
+<!-- In the manuscript text, reference figures like this: -->
+
+![Fig 1](figures/fig1_study_area.png)
+*Fig 1 Study area location and NDVI overview (2020 Sentinel-2 median NDVI)*
+
+![Fig 2](figures/fig2_ndvi_timeseries.png)
+*Fig 2 Annual mean NDVI variation for both study sites (2020-2025)*
 ```
 
-**参考文献**（25-30 条）：
-- 格式：默认 GB/T 7714-2025
-- 至少 20 条来自 Phase 1 检索的真实文献
-- 其余为领域经典文献或补充
-
-#### Step 3.3 — 自动图表生成
-
-| 图表类型 | 格式 | 引用方式 |
-|---------|------|---------|
-| 研究区位置图 | PNG, 300 DPI | ![Fig 1](path) |
-| 分类/结果图 | PNG, 300 DPI | ![Fig 2](path) |
-| 变化趋势图 | PNG, 300 DPI | ![Fig 3](path) |
-| 精度对比表 | Markdown/CSV | 表 1 |
-| 面积统计表 | Markdown/CSV | 表 2 |
-| 精度评估表 | Markdown/CSV | 表 3 |
-
-#### Step 3.4 — 最终输出
+### 3.4 Output Files
 
 ```
-outputs/YYYYMMDD_HHMMSS_topic/
-├── manuscript.md             # 完整论文草稿（可转为 docx）
-├── figures/                  # 所有结果图 (300 DPI PNG)
+outputs/YYYYMMDD_HHMMSS_topic_paper/
+├── manuscript.md               # Complete manuscript (8000+ words)
+├── manuscript.html             # HTML version with rendered tables/figures
+├── manuscript.docx             # Word document (with embedded images)
+├── figures/                    # All publication-quality figures (300 DPI PNG)
 │   ├── fig1_study_area.png
-│   ├── fig2_task1_result.png
-│   └── ...
-├── tables/                   # 精度表/统计表
-│   ├── table1_accuracy.csv
-│   ├── table1_accuracy.md
-│   └── ...
-├── gee_code/                 # 完整 GEE 脚本
-│   ├── task1_code.py
-│   └── ...
-├── results_raw/              # 原始数据
-│   ├── task1_result.tif
-│   └── ...
-└── README.md                 # 复现说明
+│   ├── fig2_ndvi_timeseries.png
+│   ├── fig3_ndvi_comparison.png
+│   ├── fig4_vegetation_grade.png
+│   ├── fig5_change_detection.png
+│   ├── fig6_multiyear_ndvi.png
+│   └── ndvi_tif/              # All original GeoTIFF files
+│       ├── site_name_ndvi_2020.tif
+│       └── ...
+├── tables/                     # All data tables (CSV + Markdown)
+├── gee_code/                   # Complete GEE scripts
+└── README.md                   # Reproduction instructions
 ```
 
 ---
 
-## 📦 输入输出格式
+## Quality Gates
 
-### 用户输入
-
-| 参数 | 类型 | 必填 | 默认值 | 说明 |
-|------|------|------|--------|------|
-| 研究主题 | 自然语言 | ✅ | - | 描述研究方向 |
-| GEE Project ID | 字符串 | ⚠️ | 无 | 仅 Phase 2 需要 |
-| 研究区域 | 字符串 | ❌ | 自动选择 | 地名或坐标 |
-| 时间范围 | 字符串 | ❌ | 近5年 | 如 "2018-2023" |
-| 任务数量 | 整数 | ❌ | 4 | 3-5 个 |
-| 参考文献格式 | 字符串 | ❌ | gb | gb/apa/mla |
-| 禁用深度学习 | 布尔 | ❌ | false | --no-deep |
-
-### 最终输出
-
-```
-📦 outputs/YYYYMMDD_HHMMSS_topic/
-├── 📄 manuscript.md          # 完整论文
-├── 🖼️ figures/               # 图表
-├── 📊 tables/                # 数据表
-├── 💻 gee_code/              # 代码
-└── 📁 results_raw/           # 原始结果
-```
+| Gate | Standard |
+|------|----------|
+| **Literature-grounded** | Every method claim cites a real paper from search |
+| **Quantified** | Every result includes specific numerical values |
+| **Sufficient length** | Manuscript > 6000 words (target 8000+) |
+| **Reproducible** | Methods detailed enough to replicate |
+| **Embedded figures** | All generated figures inserted into manuscript |
+| **Formatted output** | manuscript.md + manuscript.html + manuscript.docx |
+| **TIF download** | All NDVI/FVC rasters saved as GeoTIFF |
 
 ---
 
-## 🎯 完整示例
+## Error Handling
 
-### 示例 1：黄河流域植被覆盖度变化
-
-**用户输入：**
-> 研究方向：黄河流域植被覆盖度变化监测，时间范围 2018-2023。区域：黄河中游（陕西-山西段）。优先使用 Sentinel-2 数据，若云量过多则用 Landsat-8。
-
-**PaperForge 自动执行流程：**
-
-```
-[Phase 1] ResearchX 文献检索...
-  → 检索到 35 篇相关文献
-  → 提取结构化信息（数据源、算法、精度）
-  → 识别 4 个研究缺口
-
-[Phase 2] GEEPro 自动执行...
-  ✓ Task-1: FVC 回归估算（RF + Sentinel-2）→ R²=0.89
-  ✓ Task-2: 植被趋势监测（LandTrendr）→ 12% 区域显著下降
-  ✓ Task-3: 土地利用分类（S2 + L8）→ OA=0.93, Kappa=0.91
-  ✓ Task-4: 退耕还林效果评估 → 森林面积增加 345 km²
-
-[Phase 3] 论文生成...
-  ✓ 摘要（256 字）
-  ✓ 引言（5 段，15 条引用）
-  ✓ 方法（4 个子节，含 GEE 代码段）
-  ✓ 结果（4 张图 + 3 个表）
-  ✓ 讨论（4 个方面）
-  ✓ 结论（4 个要点）
-  ✓ 参考文献（28 条，GB/T 7714-2025 格式）
-
-✅ 完成！输出到 outputs/20260611_143022/
-```
-
-### 示例 2：湖泊富营养化监测
-
-**用户输入：**
-> 太湖富营养化遥感监测，使用 Sentinel-2 和 Landsat-8 数据，评估 2019-2023 年叶绿素 a 浓度变化。
-
-**PaperForge 自动执行流程：**
-
-```
-[Phase 1] ResearchX 文献检索...
-  → 检索到 28 篇关于湖泊富营养化遥感的文献
-  → 提取常用算法：OC3、APD、机器学习回归
-  → 设计 3 个任务
-
-[Phase 2] GEEPro 自动执行...
-  ✓ Task-1: 叶绿素 a 反演（OC3 算法 + S2）→ R²=0.85
-  ✓ Task-2: 叶绿素 a 反演（随机森林 + S2+L8）→ R²=0.91
-  ✓ Task-3: 富营养化时序趋势分析 → Eutrophic 指数下降 8%
-
-[Phase 3] 论文生成...
-  ✓ 论文草稿（含太湖位置图、Chl-a 反演图、趋势图）
-  ✓ 25 条参考文献
-  ✓ 完整 GEE 代码
-
-✅ 完成！
-```
+| Situation | Protocol |
+|-----------|----------|
+| GEE not authenticated | Output auth command, proceed with dry-run simulation |
+| Dataset unavailable | Auto-switch to alternative (S2→L8→MODIS) |
+| Memory exceeded | Auto-scale adjustment |
+| Network timeout | Retry with exponential backoff (3 attempts) |
+| Vague user input | Ask clarifying questions before proceeding |
 
 ---
 
-## ⚙️ 命令行参数
+## CLI Reference
 
 ```bash
-python scripts/run_pipeline.py --topic "研究主题" [选项]
-```
+# Full pipeline
+python scripts/run_pipeline.py --topic "研究主题" --project PROJECT_ID
 
-| 参数 | 说明 | 示例 |
-|------|------|------|
-| `--topic` | **必填**。研究主题 | `"黄河流域植被覆盖度变化"` |
-| `--project` | GEE Project ID | `"ee-myproject"` |
-| `--region` | 研究区域 | `"黄河中游"`, `"35.5,110.2"` |
-| `--time` | 时间范围（默认近5年） | `"2018-2023"` |
-| `--tasks` | 任务数量 3-5（默认4） | `5` |
-| `--format` | 参考文献格式 | `gb`（默认）, `apa`, `mla` |
-| `--no-deep` | 禁用深度学习方法 | 无需值 |
-| `--dry-run` | 仅出方案，不执行 GEE | 无需值 |
-| `--phase` | 仅运行指定阶段 | `literature`, `gee`, `paper` |
-| `--help` | 显示帮助 | 无需值 |
-
-**使用示例：**
-```bash
-# 全自动运行
-python scripts/run_pipeline.py --topic "城市热岛效应" --project my-project
-
-# 仅文献调研 + 论文（跳过 GEE 执行）
+# Dry-run (literature + paper only, no GEE)
 python scripts/run_pipeline.py --topic "..." --dry-run
 
-# 指定 APA 格式 + 5 个任务
-python scripts/run_pipeline.py --topic "..." --project my-project --tasks 5 --format apa
+# Phase-specific
+python scripts/run_pipeline.py --topic "..." --phase literature
+python scripts/run_pipeline.py --topic "..." --phase gee
+python scripts/run_pipeline.py --topic "..." --phase paper
 
-# 仅执行 GEE 任务（跳过文献和论文）
-python scripts/run_pipeline.py --topic "..." --project my-project --phase gee
+# Options
+--topic TEXT     Research topic (required)
+--project TEXT   GEE Project ID (required for Phase 2)
+--region TEXT    Study area
+--time TEXT      Time range (default: last 5 years)
+--tasks INT      Number of tasks 3-5 (default: 4)
+--format TEXT    Reference format: gb/apa/mla (default: gb)
+--journal TEXT   Journal type: chinese/sci (prompt if not specified)
+--no-deep        Disable deep learning
+--dry-run        Scheme only, no GEE execution
+--phase TEXT     Phase: all/literature/gee/paper
 ```
 
 ---
 
-## 📁 文件结构
+## Platform Integration
 
+### OpenAI Codex CLI
+```bash
+Copy-Item -Recurse "PaperForge" "$env:USERPROFILE\.codex\skills\PaperForge"
 ```
-PaperForge/
-│
-├── SKILL.md                     # 🔵 本文件 — 技能指令（入口）
-├── README.md                    # GitHub 首页
-├── requirements.txt             # Python 依赖
-├── LICENSE                      # MIT 许可证
-├── .gitignore
-│
-├── assets/
-│   └── banner.svg               # 项目横幅
-│
-├── scripts/
-│   ├── run_pipeline.py          # 🔵 主流水线编排器
-│   └── check_environment.py     # GEE 环境检查
-│
-├── references/
-│   ├── 01_workflow.md           # 详细工作流说明
-│   └── 02_output_format.md      # 输出格式规范
-│
-└── templates/
-    ├── manuscript_template.md    # SCI 论文模板
-    └── task_template.json        # 任务 JSON 模板
+
+### Claude Desktop
+Add to Custom Instructions:
+```
+You have access to PaperForge skill (github.com/xingguangYan/PaperForge).
+Follow the 3-phase workflow in SKILL.md for remote sensing paper automation.
+```
+
+### Cline (.clinerules)
+```markdown
+You have loaded PaperForge skill. Full remote sensing paper generation capability.
+Workflow: literature mining → GEE tasks → manuscript (8000+ words) → DOCX output.
+```
+
+### Cursor (.cursorrules)
+```markdown
+PaperForge skill active. For remote sensing research topics, execute the complete 3-phase pipeline.
+Always ask for journal type (Chinese core / SCI) before starting.
+```
+
+### Windsurf (.windsurfrules)
+```
+PaperForge skill integrated. End-to-end RS paper automation pipeline.
+Before execution: ask journal type + study area + time range + data preference.
+After execution: deliver manuscript.md + manuscript.html + manuscript.docx with embedded figures.
 ```
 
 ---
 
-## 🛠️ 依赖与环境
+## Dependency Installation
 
 ```bash
-# 安装依赖
-pip install -r requirements.txt
+pip install earthengine-api geemap geopandas pandas numpy matplotlib seaborn requests python-docx rasterio
 ```
 
-requirements.txt 内容：
-```
-earthengine-api>=1.0.0
-geemap>=0.30.0
-geopandas>=0.14.0
-pandas>=2.0.0
-numpy>=1.24.0
-matplotlib>=3.7.0
-seaborn>=0.12.0
-requests>=2.28.0
-```
-
+### GEE Authentication
 ```bash
-# GEE 认证
 earthengine authenticate
-
-# 环境验证
-python scripts/check_environment.py --project PROJECT_ID
 ```
 
-**代理设置（中国大陆用户）：**
-```bash
-set HTTP_PROXY=http://127.0.0.1:7890
-set HTTPS_PROXY=http://127.0.0.1:7890
+### Proxy Configuration (China)
+```powershell
+$env:HTTP_PROXY = "http://127.0.0.1:7890"
+$env:HTTPS_PROXY = "http://127.0.0.1:7890"
 ```
-
----
-
-## ❓ 常见问题
-
-| 问题 | 解决方案 |
-|------|---------|
-| **GEE 认证失败** | `earthengine authenticate` 或使用服务账号 JSON |
-| **调用 GEE 时网络超时** | 设置 HTTP_PROXY 环境变量（中国大陆用户） |
-| **提示内存不足** | 增大 scale 值，或缩小研究区域 |
-| **Python 报错 no module** | `pip install -r requirements.txt` |
-| **找不到数据集** | 自动切换替代数据集，或检查数据集 ID |
-| **文献检索结果太少** | PaperForge 会自动扩展关键词和同义词 |
-| **想换参考文献格式** | 添加 `--format apa` 或 `--format mla` |
-| **只想看方案不运行** | 添加 `--dry-run` |
-| **论文想转 Word** | 使用 pandoc: `pandoc manuscript.md -o manuscript.docx` |
-
----
-
-## 📄 许可
-
-MIT License © 2026 [xingguangYan](https://github.com/xingguangYan)
