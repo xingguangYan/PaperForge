@@ -2,16 +2,67 @@
   {
     "task_id": "Task-1",
     "type": "classification",
-    "target_variable": "land_cover",
-    "description": "土地利用分类",
-    "datasets": ["COPERNICUS/S2_SR"],
+    "target_variable": "land_cover_type",
+    "description": "土地利用/覆盖分类",
+    "datasets": [
+      "COPERNICUS/S2_SR",
+      "LANDSAT/LC08/C02/T1_L2"
+    ],
     "region": null,
     "time_range": ["2018-01-01", "2023-12-31"],
     "cloud_cover": 20,
-    "models": ["smileRandomForest(100)", "smileCart()", "improved_rf"],
-    "validation": "10-fold cross-validation",
-    "metrics": ["overall_accuracy", "kappa", "f1"],
-    "expected_output": "classification_map, accuracy_table",
-    "innovation": "引入多时相纹理特征改善分类精度"
+    "models": [
+      "smileRandomForest(100)",
+      "smileCart()",
+      "improved_rf_with_texture"
+    ],
+    "validation": "独立验证集 (30%)",
+    "metrics": ["overall_accuracy", "kappa", "f1_score"],
+    "expected_output": "classification_map, accuracy_table, area_statistics",
+    "innovation": "引入多时相纹理特征和光谱指数改善分类精度"
+  },
+  {
+    "task_id": "Task-2",
+    "type": "monitoring",
+    "target_variable": "NDVI_trend_slope",
+    "description": "植被覆盖度变化趋势监测",
+    "datasets": [
+      "MODIS/061/MOD13Q1",
+      "COPERNICUS/S2_SR"
+    ],
+    "region": null,
+    "time_range": ["2018-01-01", "2023-12-31"],
+    "cloud_cover": 30,
+    "models": [
+      "ee.Reducer.linearFit()",
+      "LandTrendr",
+      "harmonic_regression"
+    ],
+    "validation": "时间序列交叉验证",
+    "metrics": ["trend_significance_p", "slope", "r_squared"],
+    "expected_output": "trend_map, significant_area_table, time_series_plot",
+    "innovation": "结合 LandTrendr 断点检测和时序回归的趋势分析方法"
+  },
+  {
+    "task_id": "Task-3",
+    "type": "regression",
+    "target_variable": "biophysical_parameter",
+    "description": "植被参数定量反演",
+    "datasets": [
+      "COPERNICUS/S2_SR",
+      "COPERNICUS/S2_CLOUD_PROBABILITY"
+    ],
+    "region": null,
+    "time_range": ["2020-01-01", "2023-12-31"],
+    "cloud_cover": 10,
+    "models": [
+      "smileRandomForestRegressor",
+      "linear_regression",
+      "improved_rf_regressor"
+    ],
+    "validation": "5-fold交叉验证",
+    "metrics": ["r_squared", "rmse", "mae", "bias"],
+    "expected_output": "parameter_map, accuracy_scatter, validation_table",
+    "innovation": "融合光学和雷达特征的参数估算方法"
   }
 ]
