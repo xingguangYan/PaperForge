@@ -1,4 +1,4 @@
-﻿# Python
+# Python
 __pycache__/
 *.py[cod]
 *.egg-info/
@@ -17,6 +17,7 @@ venv/
 # Output
 runs/
 outputs/
+tasks/
 
 # IDE
 .vscode/
