@@ -1,18 +1,141 @@
-﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200">
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 280">
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1a1a2e"/>
-      <stop offset="50%" style="stop-color:#16213e"/>
-      <stop offset="100%" style="stop-color:#0f3460"/>
+    <!-- Background gradient - dark forge ambience -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a1a"/>
+      <stop offset="40%" style="stop-color:#1a1a3e"/>
+      <stop offset="100%" style="stop-color:#0d1b2a"/>
     </linearGradient>
-    <linearGradient id="hammer" x1="0" y1="0" x2="0" y2="1">
+    
+    <!-- Gold gradient for title -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#ffd700"/>
+      <stop offset="50%" style="stop-color:#ffaa00"/>
       <stop offset="100%" style="stop-color:#ff8c00"/>
     </linearGradient>
+    
+    <!-- Anvil metallic gradient -->
+    <linearGradient id="anvilGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a4a5a"/>
+      <stop offset="50%" style="stop-color:#2a2a3a"/>
+      <stop offset="100%" style="stop-color:#1a1a2a"/>
+    </linearGradient>
+    
+    <!-- Glow effect -->
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ffaa00;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#ffaa00;stop-opacity:0"/>
+    </radialGradient>
+    
+    <!-- Orbital ring gradient -->
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:0.8"/>
+      <stop offset="50%" style="stop-color:#00ff88;stop-opacity:0.6"/>
+      <stop offset="100%" style="stop-color:#00d4ff;stop-opacity:0.3"/>
+    </linearGradient>
+    
+    <!-- Satellite glow -->
+    <filter id="satelliteGlow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    
+    <!-- Spark filter -->
+    <filter id="sparkGlow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
   </defs>
-  <rect width="800" height="200" fill="url(#bg)" rx="12"/>
-  <text x="90" y="110" font-size="72">🔨</text>
-  <text x="170" y="85" font-family="Arial,sans-serif" font-size="52" font-weight="bold" fill="#ffd700">PaperForge</text>
-  <text x="170" y="130" font-family="Arial,sans-serif" font-size="20" fill="#e0e0e0">Topic in. Paper out.</text>
-  <text x="170" y="160" font-family="Arial,sans-serif" font-size="14" fill="#8899aa">全自动遥感科研流水线 · ResearchX + GEEPro</text>
+  
+  <!-- Background -->
+  <rect width="1200" height="280" fill="url(#bgGrad)" rx="16"/>
+  
+  <!-- Subtle grid pattern -->
+  <g opacity="0.03">
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"/>
+    </pattern>
+    <rect width="1200" height="280" fill="url(#grid)"/>
+  </g>
+  
+  <!-- Anvil icon (bottom left area) -->
+  <g transform="translate(60, 160)">
+    <!-- Anvil body -->
+    <path d="M-30,50 L-25,10 L25,10 L30,50 Z" fill="url(#anvilGrad)" stroke="#5a5a6a" stroke-width="1.5"/>
+    <!-- Anvil top -->
+    <path d="M-28,10 L-20,-5 L20,-5 L28,10 Z" fill="#5a5a6a" stroke="#6a6a7a" stroke-width="1"/>
+    <!-- Anvil base -->
+    <rect x="-35" y="50" width="70" height="10" rx="2" fill="#2a2a3a" stroke="#4a4a5a" stroke-width="1"/>
+    <!-- Hammer -->
+    <g transform="rotate(-25, 40, -30)">
+      <rect x="38" y="-60" width="4" height="50" rx="2" fill="#8B7355"/>
+      <rect x="28" y="-70" width="24" height="16" rx="3" fill="#7a7a8a" stroke="#9a9aaa" stroke-width="1"/>
+    </g>
+  </g>
+  
+  <!-- Sparks from anvil -->
+  <g filter="url(#sparkGlow)">
+    <circle cx="75" cy="148" r="2.5" fill="#ffdd44" opacity="0.9"/>
+    <circle cx="90" cy="138" r="1.5" fill="#ffaa00" opacity="0.7"/>
+    <circle cx="65" cy="135" r="2" fill="#ff8800" opacity="0.8"/>
+    <circle cx="85" cy="152" r="1" fill="#ffcc44" opacity="0.6"/>
+    <circle cx="95" cy="145" r="1.5" fill="#ffaa44" opacity="0.5"/>
+  </g>
+  
+  <!-- Orbital ring (Earth observation concept) -->
+  <ellipse cx="1080" cy="160" rx="100" ry="30" fill="none" stroke="url(#ringGrad)" stroke-width="2" opacity="0.5"/>
+  <ellipse cx="1080" cy="160" rx="80" ry="22" fill="none" stroke="url(#ringGrad)" stroke-width="1.5" opacity="0.3"/>
+  
+  <!-- Satellite on orbit -->
+  <g transform="translate(1170, 145)" filter="url(#satelliteGlow)">
+    <rect x="-8" y="-3" width="16" height="6" rx="2" fill="#00d4ff" opacity="0.9"/>
+    <rect x="-15" y="-1" width="30" height="2" rx="1" fill="#00d4ff" opacity="0.6"/>
+    <rect x="-5" y="-8" width="4" height="5" rx="1" fill="#00d4ff" opacity="0.7"/>
+    <rect x="1" y="-8" width="4" height="5" rx="1" fill="#00d4ff" opacity="0.7"/>
+  </g>
+  
+  <!-- Earth icon -->
+  <circle cx="1080" cy="185" r="18" fill="#1a5a8a" opacity="0.6"/>
+  <path d="M1065,180 Q1075,170 1090,178 Q1100,182 1095,195 Q1085,200 1075,192 Z" fill="#2a8a4a" opacity="0.4"/>
+  <path d="M1070,178 Q1078,185 1082,180" fill="none" stroke="#3aaa5a" stroke-width="1" opacity="0.3"/>
+  
+  <!-- Title: PaperForge -->
+  <text x="240" y="110" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="68" font-weight="900" fill="url(#goldGrad)" letter-spacing="3">
+    PaperForge
+  </text>
+  
+  <!-- Tagline -->
+  <text x="240" y="155" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="26" fill="#c0c8d8" font-weight="300" letter-spacing="8">
+    TOPIC IN. PAPER OUT.
+  </text>
+  
+  <!-- Subtitle -->
+  <text x="240" y="185" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="16" fill="#7088a8" font-weight="400">
+    全自动遥感科研流水线 — 从研究方向到完整 SCI 论文，一键完成
+  </text>
+  
+  <!-- Feature tags -->
+  <g transform="translate(240, 215)">
+    <rect x="0" y="0" width="90" height="24" rx="12" fill="#ffaa00" opacity="0.15"/>
+    <text x="45" y="16" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#ffaa00" text-anchor="middle" font-weight="600">ResearchX</text>
+    
+    <rect x="100" y="0" width="80" height="24" rx="12" fill="#00d4ff" opacity="0.15"/>
+    <text x="140" y="16" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#00d4ff" text-anchor="middle" font-weight="600">GEEPro</text>
+    
+    <rect x="190" y="0" width="90" height="24" rx="12" fill="#00ff88" opacity="0.15"/>
+    <text x="235" y="16" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#00ff88" text-anchor="middle" font-weight="600">Auto Paper</text>
+    
+    <rect x="290" y="0" width="80" height="24" rx="12" fill="#ff6688" opacity="0.15"/>
+    <text x="330" y="16" font-family="'Segoe UI', Arial, sans-serif" font-size="11" fill="#ff6688" text-anchor="middle" font-weight="600">SCI Grade</text>
+  </g>
+  
+  <!-- Bottom accent line -->
+  <rect x="240" y="255" width="200" height="3" rx="1.5" fill="url(#goldGrad)" opacity="0.6"/>
+  <rect x="240" y="255" width="200" height="3" rx="1.5" fill="white" opacity="0.1"/>
 </svg>
