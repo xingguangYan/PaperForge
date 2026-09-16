@@ -4,30 +4,43 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
 
 # Environment
 .env
-venv/
-.venv/
+.env.*
 
-# GEE
+# GEE service-account credentials
 *.json
 !templates/*.json
 
-# Output
+# Outputs (generated artifacts)
 runs/
 outputs/
 tasks/
 
-# IDE
+# Agent skill install mirrors
+.codex/
+.claude/
+.agents/
+
+# IDE / OS
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# OS
 .DS_Store
 Thumbs.db
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Large data
+*.tif
+*.tiff
+*.zip
+!assets/*.svg
